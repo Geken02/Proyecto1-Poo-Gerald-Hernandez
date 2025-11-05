@@ -1,8 +1,8 @@
 package poo.proyecto1.grupo;
 
-import poo.proyecto1.usuarios.profesor.Profesor;
+import poo.proyecto1.persona.profesor.Profesor;
 import poo.proyecto1.curso.Curso;
-import poo.proyecto1.usuarios.estudiante.Estudiante;
+import poo.proyecto1.persona.estudiante.Estudiante;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -85,10 +85,10 @@ public class Grupo {
     public boolean matricularEstudiante(Estudiante estudiante) {
         if (estudiantesMatriculados.size() < cursoAsociado.getCantMaxEstudiantes()) {
             estudiantesMatriculados.add(estudiante);
-            System.out.println("✅ Estudiante " + estudiante.getNombre() + " matriculado en el grupo " + idGrupo);
+            System.out.println("Estudiante " + estudiante.getNombre() + " matriculado en el grupo " + idGrupo);
             return true;
         } else {
-            System.out.println("❌ No se puede matricular: grupo lleno (máximo " + cursoAsociado.getCantMaxEstudiantes() + " estudiantes).");
+            System.out.println("No se puede matricular: grupo lleno (máximo " + cursoAsociado.getCantMaxEstudiantes() + " estudiantes).");
             return false;
         }
     }
@@ -98,10 +98,10 @@ public class Grupo {
      */
     public boolean desmatricularEstudiante(Estudiante estudiante) {
         if (estudiantesMatriculados.remove(estudiante)) {
-            System.out.println("✅ Estudiante " + estudiante.getNombre() + " desmatriculado del grupo " + idGrupo);
+            System.out.println("Estudiante " + estudiante.getNombre() + " desmatriculado del grupo " + idGrupo);
             return true;
         } else {
-            System.out.println("❌ Estudiante no encontrado en este grupo.");
+            System.out.println("Estudiante no encontrado en este grupo.");
             return false;
         }
     }

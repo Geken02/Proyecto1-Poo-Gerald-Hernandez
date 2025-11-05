@@ -1,13 +1,18 @@
 package poo.proyecto1.admin;
 
 import poo.proyecto1.persona.Persona;
-import poo.proyecto1.usuarios.estudiante.Estudiante;
-import poo.proyecto1.usuarios.profesor.Profesor;
+import poo.proyecto1.persona.estudiante.Estudiante;
+import poo.proyecto1.persona.profesor.Profesor;
 import poo.proyecto1.util.JsonUtils;
+import poo.proyecto1.curso.Curso;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
+
+import javax.swing.SwingUtilities;
+
 import java.util.ArrayList;
 import com.google.gson.reflect.TypeToken;
 
@@ -27,9 +32,8 @@ public class Administrador {
     
     // Carga la lista al iniciar
    private List<Persona> cargarUsuarios() {
-    Type tipoLista = new TypeToken<List<Persona>>(){}.getType();
     try {
-        return JsonUtils.cargarListaDesdeJson(RUTA_USUARIOS, tipoLista);
+        return JsonUtils.cargarListaPersonas(RUTA_USUARIOS);
     } catch (Exception e) {
         System.err.println("Error al cargar usuarios. Se iniciará con lista vacía.");
         e.printStackTrace();
@@ -40,7 +44,7 @@ public class Administrador {
     // Guarda la lista actual en el archivo
     private void guardarUsuarios() {
         try {
-            JsonUtils.guardarListaEnJson(listaUsuarios, RUTA_USUARIOS);
+            JsonUtils.guardarListaPersonas(listaUsuarios, RUTA_USUARIOS);
         } catch (IOException e) {
             System.err.println("Error al guardar usuarios: " + e.getMessage());
         }
@@ -107,6 +111,7 @@ public class Administrador {
         this.idAdmin = ID_ADMIN;
         this.contrasenaAdmin = CONTRASENA_ADMIN;
         this.listaUsuarios = cargarUsuarios();
+        this.listaCursos = cargarCursos();
         if (this.listaUsuarios == null) {
         this.listaUsuarios = new ArrayList<>();
     
@@ -196,28 +201,175 @@ public class Administrador {
         System.out.println("Datos del profesor actualizados.");
     }
 
-    public void eliminarEstudiante() {
-        System.out.println("Eliminando un estudiante...");
+    public void eliminarUsuario(String id) {
+        boolean eliminado = listaUsuarios.removeIf(p -> p.getIdentificacionPersonal().equals(id));
+        if (eliminado) {
+            guardarUsuarios();
+        System.out.println("Usuario eliminado correctamente.");
+        } else {
+        System.out.println("Usuario con ID '" + id + "' no encontrado.");
+        }
     }
 
-    public void eliminarProfesor() {
-        System.out.println("Eliminando un profesor...");
+    // ... (tus atributos y métodos existentes)
+
+    private static final String RUTA_CURSOS = "MC_Cursos.json";
+    private List<Curso> listaCursos;
+
+    // ===== MÉTODOS PARA CURSOS =====
+
+    private List<Curso> cargarCursos() {
+        Type tipoLista = new TypeToken<List<Curso>>(){}.getType();
+        try {
+            List<Curso> lista = JsonUtils.cargarLista(RUTA_CURSOS, tipoLista);
+            return lista != null ? lista : new ArrayList<>();
+        } catch (Exception e) {
+            System.err.println("Error al cargar cursos. Se iniciará con lista vacía.");
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 
-    public void agregarCurso() {
-        System.out.println("Agregando un nuevo curso...");
+    private void guardarCursos() {
+        Type tipoLista = new TypeToken<List<Curso>>(){}.getType();
+        try {
+            JsonUtils.guardarLista(listaCursos, tipoLista, RUTA_CURSOS);
+        } catch (Exception e) {
+            System.err.println("Error al guardar cursos: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
-    public void consultarCurso() {
-        System.out.println("Consultando información de un curso...");
+    private Optional<Curso> buscarCursoPorId(String idCurso) {
+        return listaCursos.stream()
+            .filter(c -> c.getIdCurso().equals(idCurso))
+            .findFirst();
     }
 
-    public void modificarCurso() {
-        System.out.println("Modificando datos de un curso...");
+    // --- Implementaciones reales ---
+
+    public void agregarCurso(
+        String idCurso, String nombre, String descripcion,
+        int horasDia, String modalidad,
+        int minEst, int maxEst,
+        int califMinAprobar, String tipo) {
+
+        if (buscarCursoPorId(idCurso).isPresent()) {
+            System.out.println("Error: Ya existe un curso con ID " + idCurso);
+            return;
+        }
+
+        Curso nuevo = new Curso(
+            idCurso, nombre, descripcion,
+            horasDia, 0, modalidad, 
+            minEst, maxEst,
+            califMinAprobar, tipo
+        );
+
+        listaCursos.add(nuevo);
+        guardarCursos();
+        System.out.println("Curso agregado exitosamente: " + nombre);
     }
 
-    public void eliminarCurso() {
-        System.out.println("Eliminando un curso...");
+    public void consultarCurso(String idCurso) {
+        Optional<Curso> cursoOpt = buscarCursoPorId(idCurso);
+        if (cursoOpt.isPresent()) {
+            System.out.println(cursoOpt.get());
+        } else {
+            System.out.println("Curso con ID '" + idCurso + "' no encontrado.");
+        }
+    }
+
+    public void modificarCurso(
+        String idCurso,
+        String nuevoNombre, String nuevaDescripcion,
+        int nuevasHorasDia, String nuevaModalidad,
+        int nuevoMinEst, int nuevoMaxEst,
+        int nuevaCalifMin, String nuevoTipo) {
+
+        Optional<Curso> cursoOpt = buscarCursoPorId(idCurso);
+        if (cursoOpt.isEmpty()) {
+            System.out.println("Curso no encontrado.");
+            return;
+        }
+
+        Curso curso = cursoOpt.get();
+        curso.setNombreCurso(nuevoNombre);
+        curso.setDescripcionCurso(nuevaDescripcion);
+        curso.setCantHorasDia(nuevasHorasDia);
+        curso.setModalidad(nuevaModalidad);
+        curso.setCantMinEstudiantes(nuevoMinEst);
+        curso.setCantMaxEstudiantes(nuevoMaxEst);
+        curso.setCalificacionMinAprobar(nuevaCalifMin);
+        curso.setTipoCurso(nuevoTipo);
+
+        guardarCursos();
+        System.out.println("Curso actualizado correctamente.");
+    }
+
+    public void eliminarCurso(String idCurso) {
+        boolean eliminado = listaCursos.removeIf(c -> c.getIdCurso().equals(idCurso));
+        if (eliminado) {
+            guardarCursos();
+            System.out.println("Curso eliminado correctamente.");
+        } else {
+            System.out.println("Curso con ID '" + idCurso + "' no encontrado.");
+        }
+    }
+
+    public void listarCursos() {
+        if (listaCursos.isEmpty()) {
+            System.out.println("No hay cursos registrados.");
+            return;
+        }
+        System.out.println("\n=== LISTA DE CURSOS ===");
+        for (Curso c : listaCursos) {
+            System.out.println("- " + c.getNombreCurso() + " (ID: " + c.getIdCurso() + ")");
+        }
+        System.out.println("========================\n");
+    }
+
+    // En Administrador.java
+
+    // Busca un estudiante por ID y devuelve una copia (o null si no existe)
+    public Estudiante obtenerEstudiantePorId(String id) {
+        return listaUsuarios.stream()
+            .filter(p -> p.getIdentificacionPersonal().equals(id))
+            .filter(p -> p instanceof Estudiante)
+            .map(p -> (Estudiante) p)
+            .findFirst()
+            .orElse(null);
+    }
+
+    // En Administrador.java
+    public Curso obtenerCursoPorId(String idCurso) {
+        return listaCursos.stream()
+            .filter(c -> c.getIdCurso().equals(idCurso))
+            .findFirst()
+            .orElse(null);
+    }
+
+    // Busca un profesor por ID y devuelve una copia (o null si no existe)
+    public Profesor obtenerProfesorPorId(String id) {
+        return listaUsuarios.stream()
+            .filter(p -> p.getIdentificacionPersonal().equals(id))
+            .filter(p -> p instanceof Profesor)
+            .map(p -> (Profesor) p)
+            .findFirst()
+            .orElse(null);
+    }
+
+    // Busca cualquier persona por ID (útil para validaciones)
+    public Persona obtenerPersonaPorId(String id) {
+        return listaUsuarios.stream()
+            .filter(p -> p.getIdentificacionPersonal().equals(id))
+            .findFirst()
+            .orElse(null);
+    }
+
+    // Getter para que la GUI u otros puedan acceder (opcional)
+    public List<Curso> getListaCursos() {
+        return new ArrayList<>(listaCursos); // copia defensiva
     }
 
     public void asociarGrupoACurso() {
@@ -241,4 +393,8 @@ public class Administrador {
     public String toString() {
         return "Administrador{ID=" + ID_ADMIN + ", contrasena=***}";
     }
+
+    public void mostrarMenu(List<Persona> usuarios) {
+        SwingUtilities.invokeLater(() -> new MenuAdministradorFrame(usuarios));
+    } 
 }

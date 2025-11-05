@@ -1,7 +1,10 @@
-package poo.proyecto1.usuarios.profesor;
+package poo.proyecto1.persona.profesor;
 
 import poo.proyecto1.persona.Persona;
 import java.util.List;
+
+import javax.swing.SwingUtilities;
+
 import java.util.ArrayList;
 
 public class Profesor extends Persona {
@@ -95,5 +98,10 @@ public class Profesor extends Persona {
         System.out.println("Títulos Obtenidos: " + titulosObtenidos);
         System.out.println("Certificaciones: " + certificacionesEstudios);
         System.out.println("===============================");
+    }
+
+    @Override
+    public void mostrarMenu(List<Persona> usuarios) {
+        SwingUtilities.invokeLater(() -> new MenuProfesorFrame(this, usuarios));
     }
 }

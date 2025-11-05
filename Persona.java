@@ -1,5 +1,6 @@
 package poo.proyecto1.persona;
 
+import java.util.List;
 import java.util.Objects;
 
 public abstract class Persona {
@@ -129,4 +130,6 @@ public abstract class Persona {
         System.out.println("Dirección: " + direccionFisica);
         System.out.println("==================================");
     }
+
+    public abstract void mostrarMenu(List<Persona> usuarios);
 }
