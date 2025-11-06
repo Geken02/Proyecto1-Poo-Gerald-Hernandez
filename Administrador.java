@@ -5,6 +5,7 @@ import poo.proyecto1.persona.estudiante.Estudiante;
 import poo.proyecto1.persona.profesor.Profesor;
 import poo.proyecto1.util.JsonUtils;
 import poo.proyecto1.curso.Curso;
+import poo.proyecto1.grupo.Grupo;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -15,6 +16,7 @@ import javax.swing.SwingUtilities;
 
 import java.util.ArrayList;
 import com.google.gson.reflect.TypeToken;
+import java.time.LocalDate;
 
 public class Administrador {
     // Constantes para autenticación (credenciales fijas del admin)
@@ -329,9 +331,6 @@ public class Administrador {
         System.out.println("========================\n");
     }
 
-    // En Administrador.java
-
-    // Busca un estudiante por ID y devuelve una copia (o null si no existe)
     public Estudiante obtenerEstudiantePorId(String id) {
         return listaUsuarios.stream()
             .filter(p -> p.getIdentificacionPersonal().equals(id))
@@ -367,13 +366,55 @@ public class Administrador {
             .orElse(null);
     }
 
-    // Getter para que la GUI u otros puedan acceder (opcional)
-    public List<Curso> getListaCursos() {
-        return new ArrayList<>(listaCursos); // copia defensiva
+    public boolean crearGrupoParaCurso(String idCurso, String idProfesor, LocalDate fechaInicio, LocalDate fechaFin) {
+        Curso curso = obtenerCursoPorId(idCurso);
+        if (curso == null) {
+            System.out.println("Curso no encontrado.");
+            return false;
+        }
+
+        String idProf = idProfesor != null && !idProfesor.trim().isEmpty() ? idProfesor.trim() : null;
+
+        // Validar profesor solo si se proporcionó
+        if (idProf != null) {
+            Profesor profesor = obtenerProfesorPorId(idProf);
+            if (profesor == null) {
+                System.out.println("Profesor no encontrado.");
+                return false;
+            }
+        }
+
+        int nuevoIdGrupo = curso.getGrupos().size() + 1;
+        Grupo nuevoGrupo = new Grupo(nuevoIdGrupo, fechaInicio, fechaFin, idProf );
+        curso.agregarGrupo(nuevoGrupo);
+        guardarCursos();
+        System.out.println("Grupo " + nuevoIdGrupo + " creado para el curso " + idCurso);
+        return true;
     }
 
-    public void asociarGrupoACurso() {
-        System.out.println("Asociando un grupo a un curso...");
+    public boolean asignarProfesorAGrupo(String idCurso, int idGrupo, String idProfesor) {
+        Curso curso = obtenerCursoPorId(idCurso);
+        if (curso == null) {
+            System.out.println("Curso no encontrado.");
+            return false;
+        }
+
+        Grupo grupo = curso.obtenerGrupo(idGrupo);
+        if (grupo == null) {
+            System.out.println("Grupo no encontrado en el curso.");
+            return false;
+        }
+
+        Profesor profesor = obtenerProfesorPorId(idProfesor);
+        if (profesor == null) {
+            System.out.println("Profesor no encontrado.");
+            return false;
+        }
+
+        grupo.setProfesorAsignado(idProfesor);
+        guardarCursos();
+        System.out.println("Profesor " + idProfesor + " asignado al grupo " + idGrupo + " del curso " + idCurso);
+        return true;
     }
 
     public void asociarGrupoAProfesor() {

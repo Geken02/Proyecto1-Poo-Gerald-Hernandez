@@ -483,14 +483,63 @@ public class MenuAdministradorFrame extends JFrame {
                 cursosMenu.add(eliminarCursoItem);
                 // 4. Menú "Asociar Grupos-Cursos"
                 JMenu asociarGruposCursosMenu = new JMenu("Asociar Grupos-Cursos");
-                asociarGruposCursosMenu.addActionListener(e -> JOptionPane.showMessageDialog(this,
-                                "Opción 'Asociar Grupos-Cursos' seleccionada."));
+                asociarGruposCursosMenu.setMnemonic(KeyEvent.VK_G);
 
+                // 🔑 Crear un ÍTEM dentro del menú
+                JMenuItem crearGrupoItem = new JMenuItem("Crear Nuevo Grupo");
+                crearGrupoItem.addActionListener(e -> {
+                VentanaAsociarGrupoaCurso dialog = new VentanaAsociarGrupoaCurso(MenuAdministradorFrame.this);
+                dialog.setVisible(true);
+                
+                if (dialog.isConfirmado()) {
+                        boolean exito = administrador.crearGrupoParaCurso(
+                        dialog.getCursoId(),
+                        dialog.getProfesorId(), // puede estar vacío → se convierte en null
+                        dialog.getFechaInicio(),
+                        dialog.getFechaFin()
+                        );
+                        if (exito) {
+                        JOptionPane.showMessageDialog(
+                                MenuAdministradorFrame.this,
+                                "Grupo creado exitosamente.",
+                                "Éxito",
+                                JOptionPane.INFORMATION_MESSAGE
+                        );
+                        } else {
+                        JOptionPane.showMessageDialog(
+                                MenuAdministradorFrame.this,
+                                "No se pudo crear el grupo. Verifique que el curso exista.",
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE
+                        );
+                        }
+                }
+                });
+
+                // 🔑 Añadir el ítem al menú
+                asociarGruposCursosMenu.add(crearGrupoItem);
                 // 5. Menú "Asociar Grupos-Profesores"
                 JMenu asociarGruposProfesoresMenu = new JMenu("Asociar Grupos-Profesores");
-                asociarGruposProfesoresMenu.addActionListener(e -> JOptionPane.showMessageDialog(this,
-                                "Opción 'Asociar Grupos-Profesores' seleccionada."));
-
+                asociarGruposProfesoresMenu.addActionListener(e -> {
+                VentanaAsignarProfesor dialog = new VentanaAsignarProfesor(MenuAdministradorFrame.this);
+                dialog.setVisible(true);
+                
+                if (dialog.isConfirmado()) {
+                        boolean exito = administrador.asignarProfesorAGrupo(
+                        dialog.getCursoId(),
+                        dialog.getGrupoId(),
+                        dialog.getProfesorId()
+                        );
+                        if (exito) {
+                        JOptionPane.showMessageDialog(
+                                MenuAdministradorFrame.this,
+                                "Profesor asignado exitosamente al grupo.",
+                                "Éxito",
+                                JOptionPane.INFORMATION_MESSAGE
+                        );
+                        }
+                }
+                });
                 // 6. Menú "Reportes"
                 JMenu reportesMenu = new JMenu("Reportes");
                 reportesMenu.setMnemonic(KeyEvent.VK_R); // Atajo: Alt + R

@@ -9,24 +9,21 @@ import java.util.List;
 import java.util.Objects;
 
 public class Grupo {
-    // Atributos privados
     private int idGrupo;
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
 
     // Relaciones (referencias)
-    private Profesor profesorAsignado;
-    private Curso cursoAsociado;
+    String profesorAsignado;
     private List<Estudiante> estudiantesMatriculados;
 
     // Constructor
     public Grupo(int idGrupo, LocalDate fechaInicio, LocalDate fechaFin,
-                 Profesor profesor, Curso curso) {
+                 String profesor) {
         this.idGrupo = idGrupo;
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
         this.profesorAsignado = profesor;
-        this.cursoAsociado = curso;
         this.estudiantesMatriculados = new ArrayList<>();
     }
 
@@ -43,12 +40,8 @@ public class Grupo {
         return fechaFin;
     }
 
-    public Profesor getProfesorAsignado() {
+    public String getProfesorAsignado() {
         return profesorAsignado;
-    }
-
-    public Curso getCursoAsociado() {
-        return cursoAsociado;
     }
 
     public List<Estudiante> getEstudiantesMatriculados() {
@@ -68,13 +61,10 @@ public class Grupo {
         this.fechaFin = fechaFin;
     }
 
-    public void setProfesorAsignado(Profesor profesorAsignado) {
+    public void setProfesorAsignado(String profesorAsignado) {
         this.profesorAsignado = profesorAsignado;
     }
 
-    public void setCursoAsociado(Curso cursoAsociado) {
-        this.cursoAsociado = cursoAsociado;
-    }
 
     // Métodos de gestión
 
@@ -82,16 +72,7 @@ public class Grupo {
      * Matricula un estudiante al grupo.
      * Verifica que no supere el límite máximo de estudiantes.
      */
-    public boolean matricularEstudiante(Estudiante estudiante) {
-        if (estudiantesMatriculados.size() < cursoAsociado.getCantMaxEstudiantes()) {
-            estudiantesMatriculados.add(estudiante);
-            System.out.println("Estudiante " + estudiante.getNombre() + " matriculado en el grupo " + idGrupo);
-            return true;
-        } else {
-            System.out.println("No se puede matricular: grupo lleno (máximo " + cursoAsociado.getCantMaxEstudiantes() + " estudiantes).");
-            return false;
-        }
-    }
+  
 
     /**
      * Desmatricula un estudiante del grupo.
@@ -109,15 +90,7 @@ public class Grupo {
     /**
      * Muestra información del grupo.
      */
-    public void mostrarInfoGrupo() {
-        System.out.println("=== Grupo " + idGrupo + " ===");
-        System.out.println("Curso: " + cursoAsociado.getNombreCurso());
-        System.out.println("Profesor: " + profesorAsignado.getNombre() + " " + profesorAsignado.getApellido1());
-        System.out.println("Fechas: " + fechaInicio + " a " + fechaFin);
-        System.out.println("Estudiantes matriculados: " + estudiantesMatriculados.size() + "/" + cursoAsociado.getCantMaxEstudiantes());
-        System.out.println("------------------------------");
-    }
-
+   
     // toString()
     @Override
     public String toString() {
@@ -125,8 +98,6 @@ public class Grupo {
                 "idGrupo=" + idGrupo +
                 ", fechaInicio=" + fechaInicio +
                 ", fechaFin=" + fechaFin +
-                ", profesorAsignado=" + (profesorAsignado != null ? profesorAsignado.getNombre() : "Sin asignar") +
-                ", cursoAsociado=" + (cursoAsociado != null ? cursoAsociado.getNombreCurso() : "Sin asignar") +
                 ", estudiantesMatriculados=" + estudiantesMatriculados.size() +
                 '}';
     }

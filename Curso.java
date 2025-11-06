@@ -1,6 +1,10 @@
 package poo.proyecto1.curso;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+
+import poo.proyecto1.grupo.Grupo;
 
 public class Curso {
     // Atributos privados
@@ -13,6 +17,8 @@ public class Curso {
     private int cantMaxEstudiantes;
     private int calificacionMinAprobar;
     private String tipoCurso;
+
+    private List<Grupo> grupos = new ArrayList<>();
 
     // Constructor
     public Curso(String idCurso, String nombreCurso, String descripcionCurso,
@@ -28,6 +34,7 @@ public class Curso {
         this.cantMaxEstudiantes = cantMaxEstudiantes;
         this.calificacionMinAprobar = calificacionMinAprobar;
         this.tipoCurso = tipoCurso;
+        this.grupos = new ArrayList<>(); 
     }
 
     // Getters
@@ -102,6 +109,21 @@ public class Curso {
 
     public void setTipoCurso(String tipoCurso) {
         this.tipoCurso = tipoCurso;
+    }
+
+    public List<Grupo> getGrupos() {
+        return new ArrayList<>(grupos);
+    }
+
+    public void agregarGrupo(Grupo grupo) {
+        grupos.add(grupo);
+    }
+
+    public Grupo obtenerGrupo(int idGrupo) {
+        return grupos.stream()
+        .filter(g -> g.getIdGrupo() == idGrupo)
+        .findFirst()
+        .orElse(null);
     }
 
     // toString()
