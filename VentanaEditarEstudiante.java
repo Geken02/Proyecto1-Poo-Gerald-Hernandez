@@ -1,11 +1,14 @@
-// poo/proyecto1/vistas/EditarEstudianteDialog.java
+// poo/proyecto1/vistas/VentanaEditarEstudiante.java
+
 package poo.proyecto1.vistas;
 
 import poo.proyecto1.persona.estudiante.Estudiante;
 import javax.swing.*;
 import java.awt.*;
+
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class VentanaEditarEstudiante extends JDialog {
@@ -15,6 +18,9 @@ public class VentanaEditarEstudiante extends JDialog {
     private JTextField orgLaboralField;
     private JTextArea temasArea;
     private boolean confirmado = false;
+
+    // Patrón para correo: parte1@parte2 (mínimo 3 caracteres cada parte, sin espacios)
+    private static final Pattern CORREO_PATTERN = Pattern.compile("^[^\\s@]{3,}@[^\\s@]{3,}$");
 
     public VentanaEditarEstudiante(Frame parent, Estudiante estudiante) {
         super(parent, "Editar Estudiante", true);
@@ -32,7 +38,8 @@ public class VentanaEditarEstudiante extends JDialog {
         contrasenaField = new JPasswordField(estudiante.getContrasena());
         orgLaboralField = new JTextField(estudiante.getOrgLabora());
 
-        String temasStr = estudiante.getTemasInteres().stream().collect(Collectors.joining(", "));
+        String temasStr = estudiante.getTemasInteres().stream()
+            .collect(Collectors.joining(", "));
         temasArea = new JTextArea(temasStr);
         temasArea.setLineWrap(true);
         temasArea.setWrapStyleWord(true);
@@ -49,17 +56,17 @@ public class VentanaEditarEstudiante extends JDialog {
         formPanel.add(apellido2Field);
         formPanel.add(new JLabel("ID (no editable):"));
         formPanel.add(idField);
-        formPanel.add(new JLabel("Teléfono:"));
+        formPanel.add(new JLabel("Teléfono (≥8 caracteres):"));
         formPanel.add(telefonoField);
-        formPanel.add(new JLabel("Correo:"));
+        formPanel.add(new JLabel("Correo (parte1@parte2):"));
         formPanel.add(correoField);
-        formPanel.add(new JLabel("Dirección:"));
+        formPanel.add(new JLabel("Dirección (5-60 caracteres):"));
         formPanel.add(direccionField);
-        formPanel.add(new JLabel("Contraseña:"));
+        formPanel.add(new JLabel("Contraseña (≥8 caracteres, con mayúsculas, minúsculas y números):"));
         formPanel.add(contrasenaField);
-        formPanel.add(new JLabel("Organización Laboral:"));
+        formPanel.add(new JLabel("Organización Laboral (≤40 caracteres):"));
         formPanel.add(orgLaboralField);
-        formPanel.add(new JLabel("Temas de interés (separados por comas):"));
+        formPanel.add(new JLabel("Temas de interés (5-30 caracteres cada uno, separados por comas):"));
         formPanel.add(new JScrollPane(temasArea));
 
         add(formPanel, BorderLayout.CENTER);
@@ -70,9 +77,15 @@ public class VentanaEditarEstudiante extends JDialog {
         JButton cancelarBtn = new JButton("Cancelar");
 
         aceptarBtn.addActionListener(e -> {
-            confirmado = true;
-            setVisible(false);
+            String error = validarCampos();
+            if (error == null) {
+                confirmado = true;
+                setVisible(false);
+            } else {
+                JOptionPane.showMessageDialog(this, error, "Error de Validación", JOptionPane.ERROR_MESSAGE);
+            }
         });
+
         cancelarBtn.addActionListener(e -> setVisible(false));
 
         buttonPanel.add(aceptarBtn);
@@ -81,6 +94,78 @@ public class VentanaEditarEstudiante extends JDialog {
 
         pack();
         setLocationRelativeTo(parent);
+    }
+
+    private String validarCampos() {
+        // Validar nombre
+        String nombre = nombreField.getText().trim();
+        if (nombre.isEmpty()) return "Nombre no puede estar vacío.";
+        if (nombre.length() < 2) return "Nombre debe tener al menos 2 caracteres.";
+        if (nombre.length() > 20) return "Nombre no puede exceder 20 caracteres.";
+
+        // Validar apellido 1
+        String apellido1 = apellido1Field.getText().trim();
+        if (apellido1.isEmpty()) return "Apellido 1 no puede estar vacío.";
+        if (apellido1.length() < 2) return "Apellido 1 debe tener al menos 2 caracteres.";
+        if (apellido1.length() > 20) return "Apellido 1 no puede exceder 20 caracteres.";
+
+        // Validar apellido 2
+        String apellido2 = apellido2Field.getText().trim();
+        if (apellido2.isEmpty()) return "Apellido 2 no puede estar vacío.";
+        if (apellido2.length() < 2) return "Apellido 2 debe tener al menos 2 caracteres.";
+        if (apellido2.length() > 20) return "Apellido 2 no puede exceder 20 caracteres.";
+
+        // Validar ID
+        String id = idField.getText().trim();
+        if (id.isEmpty()) return "ID no puede estar vacío.";
+        if (id.length() < 9) return "ID debe tener al menos 9 caracteres.";
+
+        // Validar teléfono
+        String telefono = telefonoField.getText().trim();
+        if (telefono.isEmpty()) return "Teléfono no puede estar vacío.";
+        if (telefono.length() < 8) return "Teléfono debe tener al menos 8 caracteres.";
+
+        // Validar correo
+        String correo = correoField.getText().trim();
+        if (correo.isEmpty()) return "Correo no puede estar vacío.";
+        if (!CORREO_PATTERN.matcher(correo).matches()) {
+            return "Correo debe tener el formato parte1@parte2, donde ambas partes tienen al menos 3 caracteres y no contienen espacios.";
+        }
+
+        // Validar dirección
+        String direccion = direccionField.getText().trim();
+        if (direccion.isEmpty()) return "Dirección no puede estar vacía.";
+        if (direccion.length() < 5) return "Dirección debe tener al menos 5 caracteres.";
+        if (direccion.length() > 60) return "Dirección no puede exceder 60 caracteres.";
+
+        // Validar contraseña
+        String contrasena = new String(contrasenaField.getPassword());
+        if (contrasena.isEmpty()) return "Contraseña no puede estar vacía.";
+        if (contrasena.length() < 8) return "Contraseña debe tener al menos 8 caracteres.";
+        if (!contrasena.matches(".*[a-z].*")) return "Contraseña debe contener al menos una letra minúscula.";
+        if (!contrasena.matches(".*[A-Z].*")) return "Contraseña debe contener al menos una letra mayúscula.";
+        if (!contrasena.matches(".*\\d.*")) return "Contraseña debe contener al menos un número.";
+
+        // Validar organización laboral
+        String orgLaboral = orgLaboralField.getText().trim();
+        if (orgLaboral.length() > 40) return "Organización laboral no puede exceder 40 caracteres.";
+
+        // Validar temas de interés
+        String temasTexto = temasArea.getText().trim();
+        if (!temasTexto.isEmpty()) {
+            String[] temasArray = temasTexto.split("\\s*,\\s*");
+            for (String tema : temasArray) {
+                if (tema.isEmpty()) continue; // Saltar temas vacíos
+                if (tema.length() < 5) {
+                    return "Cada tema de interés debe tener al menos 5 caracteres. Tema inválido: '" + tema + "'";
+                }
+                if (tema.length() > 30) {
+                    return "Cada tema de interés no puede exceder 30 caracteres. Tema inválido: '" + tema + "'";
+                }
+            }
+        }
+
+        return null; // Todos los campos son válidos
     }
 
     public boolean isConfirmado() { return confirmado; }

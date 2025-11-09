@@ -58,7 +58,7 @@ public class VentanaAsociarGrupoaCurso extends JDialog {
 
         private boolean validarYProcesar() {
         String idCurso = cursoIdField.getText().trim();
-        String idProfesor = profesorIdField.getText().trim(); // ← puede estar vacío
+        String idProfesor = profesorIdField.getText().trim(); 
         String fechaInicioStr = fechaInicioField.getText().trim();
         String fechaFinStr = fechaFinField.getText().trim();
 

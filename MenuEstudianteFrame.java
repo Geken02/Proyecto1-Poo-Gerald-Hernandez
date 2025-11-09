@@ -4,6 +4,10 @@ import javax.swing.*;
 
 import poo.proyecto1.persona.personalogin.LoginFrame;
 import poo.proyecto1.persona.Persona;
+import poo.proyecto1.vistas.ConsultarPerfilEstudiante;
+import poo.proyecto1.vistas.SelectorCursoEstudiante;
+import poo.proyecto1.vistas.VentanaMatricularEnCurso;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -12,7 +16,7 @@ import java.util.List;
 
 public class MenuEstudianteFrame extends JFrame {
 
-    public MenuEstudianteFrame(Persona usuario, List<Persona> listaUsuarios) {
+    public MenuEstudianteFrame(Estudiante usuario, List<Persona> listaUsuarios) {
         // --- Configuración de la Ventana ---
         setTitle("Menú Principal de Estudiantes");
         setSize(500, 400);
@@ -31,22 +35,31 @@ public class MenuEstudianteFrame extends JFrame {
         JMenuBar menuBar = new JMenuBar();
 
         // 1. Menú "Perfil estudiante"
-        JMenu perfilMenu = new JMenu("Perfil estudiante");
-        perfilMenu.setMnemonic(KeyEvent.VK_P); // Atajo: Alt + P
-        perfilMenu.addActionListener(
-                e -> JOptionPane.showMessageDialog(this, "Opción 'Perfil estudiante' seleccionada."));
-
+       JMenu perfilMenu = new JMenu("Perfil estudiante");
+        perfilMenu.setMnemonic(KeyEvent.VK_P);
+        JMenuItem verPerfilItem = new JMenuItem("Consultar Mi Perfil");
+        verPerfilItem.addActionListener(e -> {
+            new ConsultarPerfilEstudiante(MenuEstudianteFrame.this, usuario).setVisible(true);
+        });
+        perfilMenu.add(verPerfilItem);
         // 2. Menú "Matricular"
         JMenu matricularMenu = new JMenu("Matricular");
-        matricularMenu.setMnemonic(KeyEvent.VK_M); // Atajo: Alt + M
-        matricularMenu.addActionListener(e -> JOptionPane.showMessageDialog(this, "Opción 'Matricular' seleccionada."));
-
+        matricularMenu.setMnemonic(KeyEvent.VK_M); 
+        JMenuItem matricularItem = new JMenuItem("Matricular en Curso");
+        matricularItem.addActionListener(e -> {
+        new VentanaMatricularEnCurso(MenuEstudianteFrame.this, usuario).setVisible(true);
+        });
+        matricularMenu.add(matricularItem);
         // 3. Menú "Evaluaciones"
         JMenu evaluacionesMenu = new JMenu("Evaluaciones");
         evaluacionesMenu.setMnemonic(KeyEvent.VK_E); // Atajo: Alt + E
         evaluacionesMenu
                 .addActionListener(e -> JOptionPane.showMessageDialog(this, "Opción 'Evaluaciones' seleccionada."));
-
+        JMenuItem realizarEvaluacionItem = new JMenuItem("Realizar Evaluación");
+        realizarEvaluacionItem.addActionListener(e -> {
+            new SelectorCursoEstudiante(MenuEstudianteFrame.this, usuario).setVisible(true);
+        });
+        evaluacionesMenu.add(realizarEvaluacionItem);
         // 4. Menú "Desempeño personal"
         JMenu desempenoMenu = new JMenu("Desempeño personal");
         desempenoMenu.setMnemonic(KeyEvent.VK_D); // Atajo: Alt + D
