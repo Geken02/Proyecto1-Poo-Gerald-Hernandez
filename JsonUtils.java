@@ -6,13 +6,14 @@ import com.google.gson.reflect.TypeToken;
 import poo.proyecto1.persona.Persona;
 import poo.proyecto1.persona.estudiante.Estudiante;
 import poo.proyecto1.persona.profesor.Profesor;
-
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class JsonUtils {
 
@@ -23,11 +24,15 @@ public class JsonUtils {
                 .registerSubtype(Estudiante.class, "estudiante")
                 .registerSubtype(Profesor.class, "profesor")
         )
+        .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
+        .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
         .setPrettyPrinting()
         .create();
 
     // Gson genérico para otros tipos (como Curso, Grupo, etc.)
     private static final Gson gsonGenerico = new GsonBuilder()
+        .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
+        .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
         .setPrettyPrinting()
         .create();
 
